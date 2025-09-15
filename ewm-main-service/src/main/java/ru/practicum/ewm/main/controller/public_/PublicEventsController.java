@@ -9,6 +9,7 @@ import ru.practicum.ewm.main.service.EventService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Min;
+
 import java.util.List;
 
 @RestController
@@ -20,19 +21,24 @@ public class PublicEventsController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventShortDto> search(@RequestParam(required = false) String text,
-                                      @RequestParam(required = false) List<Long> categories,
-                                      @RequestParam(required = false) Boolean paid,
-                                      @RequestParam(required = false) String rangeStart, // "yyyy-MM-dd HH:mm:ss"
-                                      @RequestParam(required = false) String rangeEnd,   // "yyyy-MM-dd HH:mm:ss"
-                                      @RequestParam(defaultValue = "false") Boolean onlyAvailable,
-                                      @RequestParam(required = false, defaultValue = "EVENT_DATE") String sort,
-                                      @RequestParam(defaultValue = "0") @Min(0) int from,
-                                      @RequestParam(defaultValue = "10") @Min(1) int size,
-                                      HttpServletRequest request) {
-        return eventService.searchPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
-                sort, from, size, request.getRemoteAddr(), request.getRequestURI());
+    public List<EventShortDto> search(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
+            @RequestParam(required = false) String rangeStart,
+            @RequestParam(required = false) String rangeEnd,
+            @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
+            @RequestParam(required = false, defaultValue = "EVENT_DATE") String sort,
+            @RequestParam(defaultValue = "0") @Min(0) int from,
+            @RequestParam(defaultValue = "10") @Min(1) int size,
+            HttpServletRequest request
+    ) {
+        return eventService.searchPublic(
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
+                sort, from, size, request.getRemoteAddr(), request.getRequestURI()
+        );
     }
+
 
     @GetMapping("/{eventId}")
     public EventFullDto getById(@PathVariable long eventId, HttpServletRequest request) {

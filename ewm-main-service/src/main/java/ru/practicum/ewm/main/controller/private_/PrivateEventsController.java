@@ -9,6 +9,7 @@ import ru.practicum.ewm.main.service.EventService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+
 import java.util.List;
 
 @RestController
@@ -22,15 +23,16 @@ public class PrivateEventsController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto create(@PathVariable long userId,
-                               @RequestBody
-@Valid NewEventDto dto) {
+                               @RequestBody @Valid NewEventDto dto) {
         return eventService.createEvent(userId, dto);
     }
 
     @GetMapping
-    public List<EventShortDto> getUserEvents(@PathVariable long userId,
-                                             @RequestParam(defaultValue = "0") @Min(0) int from,
-                                             @RequestParam(defaultValue = "10") @Min(1) int size) {
+    public List<EventShortDto> getUserEvents(
+            @PathVariable long userId,
+            @RequestParam(defaultValue = "0") @Min(0) int from,
+            @RequestParam(defaultValue = "10") @Min(1) int size
+    ) {
         return eventService.getUserEvents(userId, from, size);
     }
 
@@ -42,7 +44,7 @@ public class PrivateEventsController {
     @PatchMapping("/{eventId}")
     public EventFullDto updateUserEvent(@PathVariable long userId, @PathVariable long eventId,
                                         @RequestBody
-@Valid UpdateEventUserRequest dto) {
+                                        @Valid UpdateEventUserRequest dto) {
         return eventService.updateUserEvent(userId, eventId, dto);
     }
 }

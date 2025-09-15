@@ -219,6 +219,10 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("Incorrect date format. Expected pattern: yyyy-MM-dd HH:mm:ss");
         }
 
+        if (start != null && end != null && end.isBefore(start)) {
+            throw new BadRequestException("rangeEnd must be after rangeStart");
+        }
+
         // Если обе даты не заданы — по умолчанию показываем только будущие события
         if (start == null && end == null) {
             start = LocalDateTime.now();

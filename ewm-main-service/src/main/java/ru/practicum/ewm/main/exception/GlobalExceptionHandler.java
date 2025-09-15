@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.practicum.ewm.main.dto.ApiError;
 
 import java.time.LocalDateTime;
@@ -118,6 +119,18 @@ public class GlobalExceptionHandler {
                 .message(details)
                 .reason("Integrity constraint has been violated.")
                 .status(HttpStatus.CONFLICT.name())
+                .timestamp(LocalDateTime.now().format(FMT))
+                .build();
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return ApiError.builder()
+                .errors(List.of())
+                .message(ex.getMessage())
+                .reason("Incorrectly made request.")
+                .status(HttpStatus.BAD_REQUEST.name())
                 .timestamp(LocalDateTime.now().format(FMT))
                 .build();
     }
