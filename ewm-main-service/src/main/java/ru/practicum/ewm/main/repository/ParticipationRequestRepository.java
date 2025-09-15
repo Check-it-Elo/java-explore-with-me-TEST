@@ -23,15 +23,6 @@ public interface ParticipationRequestRepository extends JpaRepository<Participat
 
     long countByEventIdAndStatus(Long eventId, RequestStatus status);
 
-//    @Modifying(clearAutomatically = true, flushAutomatically = true)
-//    @Query("""
-//    update ParticipationRequest r
-//       set r.status = ru.practicum.ewm.main.request.model.RequestStatus.REJECTED
-//     where r.event.id = :eventId
-//       and r.status = ru.practicum.ewm.main.request.model.RequestStatus.PENDING
-//""")
-//    int rejectAllPendingByEventId(@Param("eventId") Long eventId);
-
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
     update ParticipationRequest r

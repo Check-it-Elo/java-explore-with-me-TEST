@@ -40,7 +40,7 @@ public class StatsClient {
         try {
             restTemplate.exchange(statsBaseUrl + "/hit", HttpMethod.POST, new HttpEntity<>(dto, headers), Void.class);
         } catch (Exception ignored) {
-            // не валим бизнес-логику, если статистика недоступна
+            // статистика недоступна — бизнес-логику не валим
         }
     }
 
@@ -49,16 +49,21 @@ public class StatsClient {
 
         URI uri = UriComponentsBuilder.fromHttpUrl(statsBaseUrl + "/stats")
                 .queryParam("start", start.format(FMT))
-                .queryParam("end",   end.format(FMT))
+                .queryParam("end", end.format(FMT))
                 .queryParam("unique", unique)
-                .queryParam("uris",   uris.toArray())
-                .build(true)
+                .queryParam("uris", uris.toArray())
+                .encode()
+                .build()
                 .toUri();
 
         try {
             ResponseEntity<ViewStatsDto[]> resp = restTemplate.getForEntity(uri, ViewStatsDto[].class);
             ViewStatsDto[] body = resp.getBody();
+
             Map<String, Long> map = new HashMap<>();
+            for (String u : uris) {
+                map.put(u, 0L);
+            }
             if (body != null) {
                 for (ViewStatsDto v : body) {
                     map.put(v.getUri(), v.getHits() == null ? 0L : v.getHits());
@@ -66,7 +71,9 @@ public class StatsClient {
             }
             return map;
         } catch (Exception e) {
-            return Collections.emptyMap();
+            Map<String, Long> zero = new HashMap<>();
+            for (String u : uris) zero.put(u, 0L);
+            return zero;
         }
     }
 }

@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    // 400 — ошибки валидации аргументов контроллера (Bean Validation)
+    // 400 — ошибки Bean Validation (аннотации, @Min и т.п.)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiError handleValidation(MethodArgumentNotValidException ex) {
@@ -79,13 +79,14 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    // 400 — прочие частые клиентские ошибки
+    // 400 — тип, формат, отсутствие параметра и пр.
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({
             ConstraintViolationException.class,
             MissingServletRequestParameterException.class,
             HttpMessageNotReadableException.class,
-            IllegalArgumentException.class
+            IllegalArgumentException.class,
+            MethodArgumentTypeMismatchException.class
     })
     public ApiError handleClientErrors(Exception ex) {
         return ApiError.builder()
@@ -93,6 +94,20 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .reason("Incorrectly made request.")
                 .status(HttpStatus.BAD_REQUEST.name())
+                .timestamp(LocalDateTime.now().format(FMT))
+                .build();
+    }
+
+    // 409 — нарушения уникальности/ФК и т.п.
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
+        String details = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
+        return ApiError.builder()
+                .errors(List.of())
+                .message(details)
+                .reason("Integrity constraint has been violated.")
+                .status(HttpStatus.CONFLICT.name())
                 .timestamp(LocalDateTime.now().format(FMT))
                 .build();
     }
@@ -109,30 +124,4 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now().format(FMT))
                 .build();
     }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
-        String details = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
-        return ApiError.builder()
-                .errors(List.of())
-                .message(details)
-                .reason("Integrity constraint has been violated.")
-                .status(HttpStatus.CONFLICT.name())
-                .timestamp(LocalDateTime.now().format(FMT))
-                .build();
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return ApiError.builder()
-                .errors(List.of())
-                .message(ex.getMessage())
-                .reason("Incorrectly made request.")
-                .status(HttpStatus.BAD_REQUEST.name())
-                .timestamp(LocalDateTime.now().format(FMT))
-                .build();
-    }
-
 }
