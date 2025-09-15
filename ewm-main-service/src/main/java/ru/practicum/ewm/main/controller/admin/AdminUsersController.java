@@ -20,7 +20,8 @@ public class AdminUsersController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@RequestBody @Valid NewUserRequest dto) {
+    public UserDto create(@RequestBody
+@Valid NewUserRequest dto) {
         return userService.create(dto);
     }
 

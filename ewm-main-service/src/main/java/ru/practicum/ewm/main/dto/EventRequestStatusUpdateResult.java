@@ -3,7 +3,9 @@ package ru.practicum.ewm.main.dto;
 import lombok.*;
 import java.util.List;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter @NoArgsConstructor
+@AllArgsConstructor @Builder
 public class EventRequestStatusUpdateResult {
     private List<ParticipationRequestDto> confirmedRequests;
     private List<ParticipationRequestDto> rejectedRequests;

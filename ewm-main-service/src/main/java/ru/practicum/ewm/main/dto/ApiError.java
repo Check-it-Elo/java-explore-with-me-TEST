@@ -3,7 +3,9 @@ package ru.practicum.ewm.main.dto;
 import lombok.*;
 import java.util.List;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter @NoArgsConstructor
+@AllArgsConstructor @Builder
 public class ApiError {
     /** Список стектрейсов или описаний ошибок */
     private List<String> errors;

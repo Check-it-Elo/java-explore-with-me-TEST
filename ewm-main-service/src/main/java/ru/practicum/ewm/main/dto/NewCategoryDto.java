@@ -3,8 +3,11 @@ package ru.practicum.ewm.main.dto;
 import lombok.*;
 import jakarta.validation.constraints.*;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter @NoArgsConstructor
+@AllArgsConstructor @Builder
 public class NewCategoryDto {
-    @NotBlank @Size(min = 1, max = 50)
+    @NotBlank
+@Size(min = 1, max = 50)
     private String name;
 }

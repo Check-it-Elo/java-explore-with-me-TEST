@@ -19,13 +19,15 @@ public class AdminCompilationsController {
     private final CompilationService compilationService;
 
     @PostMapping
-    public CompilationDto create(@RequestBody @Valid NewCompilationDto dto) {
+    public CompilationDto create(@RequestBody
+@Valid NewCompilationDto dto) {
         return compilationService.create(dto);
     }
 
     @PatchMapping("/{compId}")
     public CompilationDto update(@PathVariable long compId,
-                                 @RequestBody @Valid UpdateCompilationRequest dto) {
+                                 @RequestBody
+@Valid UpdateCompilationRequest dto) {
         return compilationService.update(compId, dto);
     }
 

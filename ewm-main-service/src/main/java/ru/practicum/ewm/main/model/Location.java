@@ -5,8 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "locations")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor @Builder
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
