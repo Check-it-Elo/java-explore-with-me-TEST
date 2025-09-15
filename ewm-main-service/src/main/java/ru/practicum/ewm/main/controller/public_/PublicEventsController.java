@@ -38,4 +38,6 @@ public class PublicEventsController {
     public EventFullDto getById(@PathVariable long eventId, HttpServletRequest request) {
         return eventService.getPublicEvent(eventId, request.getRemoteAddr(), request.getRequestURI());
     }
+
+
 }

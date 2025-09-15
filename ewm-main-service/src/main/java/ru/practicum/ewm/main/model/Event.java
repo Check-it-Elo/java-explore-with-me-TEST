@@ -18,13 +18,13 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 120, nullable = false)
+    @Column(name = "title", nullable = false, length = 120)
     private String title;
 
-    @Column(length = 2000, nullable = false)
+    @Column(name = "annotation", nullable = false, length = 2000)
     private String annotation;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(name = "description", nullable = false, length = 7000)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

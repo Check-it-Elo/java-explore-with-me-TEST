@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.dto.*;
 import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
+import ru.practicum.ewm.main.exception.BadRequestException;
 import ru.practicum.ewm.main.mapper.EventMapper;
 import ru.practicum.ewm.main.model.*;
 import ru.practicum.ewm.main.model.enums.EventState;
@@ -55,7 +56,7 @@ public class EventServiceImpl implements EventService {
 
         LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), FMT);
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ConflictException("Field: eventDate. Error: должно содержать дату, которая еще не наступила.");
+            throw new BadRequestException("Field: eventDate. Error: должно содержать дату, которая еще не наступила.");
         }
 
         Event event = eventMapper.fromNew(dto, category, initiator, location);
@@ -115,7 +116,7 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), FMT);
             if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ConflictException("Event date must be at least 2 hours in the future");
+                throw new BadRequestException("Event date must be at least 2 hours in the future");
             }
             event.setEventDate(eventDate);
         }
@@ -139,8 +140,15 @@ public class EventServiceImpl implements EventService {
         if (states != null && !states.isEmpty()) {
             st = states.stream().map(s -> EventState.valueOf(s.toUpperCase())).collect(Collectors.toList());
         }
-        LocalDateTime start = rangeStart == null ? null : LocalDateTime.parse(rangeStart, FMT);
-        LocalDateTime end = rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, FMT);
+
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        try {
+            start = (rangeStart == null || rangeStart.isBlank()) ? null : LocalDateTime.parse(rangeStart, FMT);
+            end   = (rangeEnd   == null || rangeEnd.isBlank())   ? null : LocalDateTime.parse(rangeEnd, FMT);
+        } catch (Exception e) {
+            throw new BadRequestException("Incorrect date format. Expected pattern: yyyy-MM-dd HH:mm:ss");
+        }
 
         Page<Event> page = eventRepository.searchAdmin(users, st, categories, start, end, PageUtils.by(from, size, Sort.by("id").descending()));
         return page.stream().map(this::enrichFull).collect(Collectors.toList());
@@ -202,8 +210,14 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> searchPublic(String text, List<Long> categories, Boolean paid,
                                             String rangeStart, String rangeEnd, Boolean onlyAvailable,
                                             String sort, int from, int size, String clientIp, String uri) {
-        LocalDateTime start = rangeStart == null ? null : LocalDateTime.parse(rangeStart, FMT);
-        LocalDateTime end = rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, FMT);
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        try {
+            start = (rangeStart == null || rangeStart.isBlank()) ? null : LocalDateTime.parse(rangeStart, FMT);
+            end   = (rangeEnd   == null || rangeEnd.isBlank())   ? null : LocalDateTime.parse(rangeEnd, FMT);
+        } catch (Exception e) {
+            throw new BadRequestException("Incorrect date format. Expected pattern: yyyy-MM-dd HH:mm:ss");
+        }
 
         // Если обе даты не заданы — по умолчанию показываем только будущие события
         if (start == null && end == null) {
