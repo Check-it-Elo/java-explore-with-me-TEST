@@ -52,15 +52,18 @@ public class StatsClient {
 
         try {
             if (statsBaseUrl == null || statsBaseUrl.isBlank()) return zeros;
-
-            URI uri = UriComponentsBuilder.fromHttpUrl(statsBaseUrl + "/stats")
+            
+            UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(statsBaseUrl)
+                    .path("/stats")
                     .queryParam("start", start.format(FMT))
                     .queryParam("end", end.format(FMT))
-                    .queryParam("unique", unique)
-                    .queryParam("uris", uris.toArray())
-                    .encode() // важно: пробелы в дате -> %20
-                    .build()
-                    .toUri();
+                    .queryParam("unique", unique);
+
+            for (String u : uris) {
+                b.queryParam("uris", u);
+            }
+
+            URI uri = b.encode().build(true).toUri();
 
             ResponseEntity<ViewStatsDto[]> resp = restTemplate.getForEntity(uri, ViewStatsDto[].class);
             ViewStatsDto[] body = resp.getBody();
@@ -71,7 +74,9 @@ public class StatsClient {
             }
             return zeros;
         } catch (Exception ignored) {
-            return zeros; // как будто просмотров нет
+            // Любая ошибка статистики — как будто просмотров нет
+            return zeros;
         }
     }
+
 }

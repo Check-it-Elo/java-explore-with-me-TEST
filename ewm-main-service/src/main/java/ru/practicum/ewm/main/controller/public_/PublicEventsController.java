@@ -25,15 +25,14 @@ public class PublicEventsController {
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) String rangeStart,   // "yyyy-MM-dd HH:mm:ss"
-            @RequestParam(required = false) String rangeEnd,     // "yyyy-MM-dd HH:mm:ss"
+            @RequestParam(required = false) String rangeStart,   // yyyy-MM-dd HH:mm:ss
+            @RequestParam(required = false) String rangeEnd,     // yyyy-MM-dd HH:mm:ss
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
             @RequestParam(defaultValue = "0") @Min(0) int from,
             @RequestParam(defaultValue = "10") @Min(1) int size,
-            HttpServletRequest request
+            jakarta.servlet.http.HttpServletRequest request
     ) {
-        // валидируем только если обе даты заданы
         if (rangeStart != null && !rangeStart.isBlank()
                 && rangeEnd != null && !rangeEnd.isBlank()) {
             var fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
