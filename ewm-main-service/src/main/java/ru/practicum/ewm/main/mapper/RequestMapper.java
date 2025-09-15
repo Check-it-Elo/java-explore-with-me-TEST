@@ -14,12 +14,14 @@ public interface RequestMapper {
 
     @Mapping(target = "event", source = "event.id")
     @Mapping(target = "requester", source = "requester.id")
-    @Mapping(target = "created", source = "created", qualifiedByName = "formatIso")
+    @Mapping(target = "created", source = "created", qualifiedByName = "fmt")
     @Mapping(target = "status", source = "status")
     ParticipationRequestDto toDto(ParticipationRequest pr);
 
     @Named("formatIso")
     default String formatIso(LocalDateTime ldt) {
-        return ldt == null ? null : ldt.toString();
+        return ldt == null ? null
+                : ldt.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
+    
 }

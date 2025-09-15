@@ -179,7 +179,7 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime ed = LocalDateTime.parse(dto.getEventDate(), FMT);
             if (ed.isBefore(LocalDateTime.now().plusHours(1))) {
-                throw new ConflictException("Event date must be at least 1 hour in the future for publishing");
+                throw new BadRequestException("Event date must be at least 1 hour in the future for publishing");
             }
             event.setEventDate(ed);
         }
