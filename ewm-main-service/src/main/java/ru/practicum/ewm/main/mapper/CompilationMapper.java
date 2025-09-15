@@ -11,7 +11,7 @@ import ru.practicum.ewm.main.model.Event;
 
 import java.util.Set;
 
-@Mapper(config = CentralMapperConfig.class, uses = { EventMapper.class })
+@Mapper(config = CentralMapperConfig.class, uses = {EventMapper.class})
 public interface CompilationMapper {
 
     // Для отдачи наружу нам нужны ShortDto событий — их будет собирать сервис.
@@ -24,6 +24,7 @@ public interface CompilationMapper {
     Compilation fromNew(NewCompilationDto dto, Set<Event> events);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "events", source = "events") // полная замена, если передали
+    @Mapping(target = "events", source = "events")
+        // полная замена, если передали
     void update(UpdateCompilationRequest dto, @MappingTarget Compilation comp, Set<Event> events);
 }

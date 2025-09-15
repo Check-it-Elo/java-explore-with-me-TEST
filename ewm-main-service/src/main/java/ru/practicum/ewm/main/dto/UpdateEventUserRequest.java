@@ -3,8 +3,10 @@ package ru.practicum.ewm.main.dto;
 import lombok.*;
 
 @Getter
-@Setter @NoArgsConstructor
-@AllArgsConstructor @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UpdateEventUserRequest {
     private String annotation;
     private Long category;
@@ -14,7 +16,9 @@ public class UpdateEventUserRequest {
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;
-    /** "SEND_TO_REVIEW" | "CANCEL_REVIEW" */
+    /**
+     * "SEND_TO_REVIEW" | "CANCEL_REVIEW"
+     */
     private String stateAction;
     private String title;
 }

@@ -8,10 +8,13 @@ import java.util.List;
 public interface CategoryService {
     // admin
     CategoryDto create(NewCategoryDto dto);
+
     void delete(long catId);
+
     CategoryDto update(long catId, CategoryDto dto);
 
     // public
     List<CategoryDto> getAll(int from, int size);
+
     CategoryDto getById(long catId);
 }

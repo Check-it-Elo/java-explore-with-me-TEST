@@ -3,8 +3,10 @@ package ru.practicum.ewm.main.dto;
 import lombok.*;
 
 @Getter
-@Setter @NoArgsConstructor
-@AllArgsConstructor @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EventFullDto {
     private Long id;
     private String annotation;

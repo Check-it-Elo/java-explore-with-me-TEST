@@ -4,21 +4,25 @@ import lombok.*;
 import jakarta.validation.constraints.*;
 
 @Getter
-@Setter @NoArgsConstructor
-@AllArgsConstructor @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class NewEventDto {
     @NotBlank
-@Size(min = 20, max = 2000)
+    @Size(min = 20, max = 2000)
     private String annotation;
 
     @NotNull
     private Long category;
 
     @NotBlank
-@Size(min = 20, max = 7000)
+    @Size(min = 20, max = 7000)
     private String description;
 
-    /** Формат "yyyy-MM-dd HH:mm:ss" */
+    /**
+     * Формат "yyyy-MM-dd HH:mm:ss"
+     */
     @NotBlank
     private String eventDate;
 
@@ -33,6 +37,6 @@ public class NewEventDto {
     private Boolean requestModeration = true;
 
     @NotBlank
-@Size(min = 3, max = 120)
+    @Size(min = 3, max = 120)
     private String title;
 }

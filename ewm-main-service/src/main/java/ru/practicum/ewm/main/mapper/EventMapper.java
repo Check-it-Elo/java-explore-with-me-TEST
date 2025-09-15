@@ -11,7 +11,7 @@ import ru.practicum.ewm.main.model.User;
 
 @Mapper(
         config = CentralMapperConfig.class,
-        uses = { CategoryMapper.class, UserMapper.class, LocationMapper.class, DateTimeMapper.class }
+        uses = {CategoryMapper.class, UserMapper.class, LocationMapper.class, DateTimeMapper.class}
 )
 public interface EventMapper {
 
@@ -54,7 +54,8 @@ public interface EventMapper {
     @Mapping(target = "eventDate", source = "dto.eventDate", qualifiedByName = "parseLdt")
     @Mapping(target = "createdOn", ignore = true) // заполним в сервисе
     @Mapping(target = "publishedOn", ignore = true) // заполним при публикации
-    @Mapping(target = "state", ignore = true) // заполним логикой (PENDING)
+    @Mapping(target = "state", ignore = true)
+    // заполним логикой (PENDING)
     Event fromNew(NewEventDto dto, Category category, User initiator, Location location);
 
     // ===== partial update (user) =====

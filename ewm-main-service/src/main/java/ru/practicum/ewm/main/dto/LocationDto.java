@@ -4,8 +4,10 @@ import lombok.*;
 import jakarta.validation.constraints.*;
 
 @Getter
-@Setter @NoArgsConstructor
-@AllArgsConstructor @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LocationDto {
     @NotNull
     private Float lat;
