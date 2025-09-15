@@ -25,25 +25,37 @@ public class PublicEventsController {
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) String rangeStart,
-            @RequestParam(required = false) String rangeEnd,
-            @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
-            @RequestParam(required = false, defaultValue = "EVENT_DATE") String sort,
+            @RequestParam(required = false) String rangeStart,   // "yyyy-MM-dd HH:mm:ss"
+            @RequestParam(required = false) String rangeEnd,     // "yyyy-MM-dd HH:mm:ss"
+            @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+            @RequestParam(defaultValue = "EVENT_DATE") String sort,
             @RequestParam(defaultValue = "0") @Min(0) int from,
             @RequestParam(defaultValue = "10") @Min(1) int size,
             HttpServletRequest request
     ) {
+        if (rangeStart == null || rangeStart.isBlank()) {
+            rangeStart = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        if (rangeEnd != null && !rangeEnd.isBlank()) {
+            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            java.time.LocalDateTime start = java.time.LocalDateTime.parse(rangeStart, fmt);
+            java.time.LocalDateTime end = java.time.LocalDateTime.parse(rangeEnd, fmt);
+            if (end.isBefore(start)) {
+                throw new ru.practicum.ewm.main.exception.BadRequestException("rangeEnd must be after or equal to rangeStart");
+            }
+        }
+
+        String normalizedSort = ("VIEWS".equalsIgnoreCase(sort)) ? "VIEWS" : "EVENT_DATE";
+
         return eventService.searchPublic(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
-                sort, from, size, request.getRemoteAddr(), request.getRequestURI()
+                normalizedSort, from, size, request.getRemoteAddr(), request.getRequestURI()
         );
     }
-
 
     @GetMapping("/{eventId}")
     public EventFullDto getById(@PathVariable long eventId, HttpServletRequest request) {
         return eventService.getPublicEvent(eventId, request.getRemoteAddr(), request.getRequestURI());
     }
-
-
 }

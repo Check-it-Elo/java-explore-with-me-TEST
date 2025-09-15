@@ -53,6 +53,7 @@ public class RequestServiceImpl implements ru.practicum.ewm.main.service.Request
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Initiator cannot request participation in own event");
         }
+
         if (event.getState() != EventState.PUBLISHED) {
             throw new ConflictException("You can participate only in published events");
         }
