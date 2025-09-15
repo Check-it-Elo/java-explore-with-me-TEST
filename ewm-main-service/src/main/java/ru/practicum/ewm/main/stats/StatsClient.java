@@ -20,7 +20,7 @@ public class StatsClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${stats.url}")
+    @Value("${stats.url:}")
     private String statsBaseUrl;
 
     @Value("${app.name:ewm-main-service}")
@@ -35,9 +35,10 @@ public class StatsClient {
                 .ip(ip)
                 .timestamp(ts.format(FMT))
                 .build();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            if (statsBaseUrl == null || statsBaseUrl.isBlank()) return;
             restTemplate.exchange(statsBaseUrl + "/hit", HttpMethod.POST, new HttpEntity<>(dto, headers), Void.class);
         } catch (Exception ignored) {
             // статистика недоступна — бизнес-логику не валим
@@ -45,35 +46,32 @@ public class StatsClient {
     }
 
     public Map<String, Long> views(Collection<String> uris, LocalDateTime start, LocalDateTime end, boolean unique) {
-        if (uris == null || uris.isEmpty()) return Collections.emptyMap();
-
-        URI uri = UriComponentsBuilder.fromHttpUrl(statsBaseUrl + "/stats")
-                .queryParam("start", start.format(FMT))
-                .queryParam("end", end.format(FMT))
-                .queryParam("unique", unique)
-                .queryParam("uris", uris.toArray())
-                .encode()
-                .build()
-                .toUri();
+        Map<String, Long> zeros = new HashMap<>();
+        if (uris == null || uris.isEmpty()) return zeros;
+        for (String u : uris) zeros.put(u, 0L);
 
         try {
+            if (statsBaseUrl == null || statsBaseUrl.isBlank()) return zeros;
+
+            URI uri = UriComponentsBuilder.fromHttpUrl(statsBaseUrl + "/stats")
+                    .queryParam("start", start.format(FMT))
+                    .queryParam("end", end.format(FMT))
+                    .queryParam("unique", unique)
+                    .queryParam("uris", uris.toArray())
+                    .encode() // важно: пробелы в дате -> %20
+                    .build()
+                    .toUri();
+
             ResponseEntity<ViewStatsDto[]> resp = restTemplate.getForEntity(uri, ViewStatsDto[].class);
             ViewStatsDto[] body = resp.getBody();
-
-            Map<String, Long> map = new HashMap<>();
-            for (String u : uris) {
-                map.put(u, 0L);
-            }
             if (body != null) {
                 for (ViewStatsDto v : body) {
-                    map.put(v.getUri(), v.getHits() == null ? 0L : v.getHits());
+                    zeros.put(v.getUri(), v.getHits() == null ? 0L : v.getHits());
                 }
             }
-            return map;
-        } catch (Exception e) {
-            Map<String, Long> zero = new HashMap<>();
-            for (String u : uris) zero.put(u, 0L);
-            return zero;
+            return zeros;
+        } catch (Exception ignored) {
+            return zeros; // как будто просмотров нет
         }
     }
 }

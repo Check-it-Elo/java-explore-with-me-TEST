@@ -33,21 +33,17 @@ public class PublicEventsController {
             @RequestParam(defaultValue = "10") @Min(1) int size,
             HttpServletRequest request
     ) {
-        if (rangeStart == null || rangeStart.isBlank()) {
-            rangeStart = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        }
-
-        if (rangeEnd != null && !rangeEnd.isBlank()) {
-            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            java.time.LocalDateTime start = java.time.LocalDateTime.parse(rangeStart, fmt);
-            java.time.LocalDateTime end = java.time.LocalDateTime.parse(rangeEnd, fmt);
+        // валидируем только если обе даты заданы
+        if (rangeStart != null && !rangeStart.isBlank()
+                && rangeEnd != null && !rangeEnd.isBlank()) {
+            var fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            var start = java.time.LocalDateTime.parse(rangeStart, fmt);
+            var end   = java.time.LocalDateTime.parse(rangeEnd, fmt);
             if (end.isBefore(start)) {
                 throw new ru.practicum.ewm.main.exception.BadRequestException("rangeEnd must be after or equal to rangeStart");
             }
         }
-
-        String normalizedSort = ("VIEWS".equalsIgnoreCase(sort)) ? "VIEWS" : "EVENT_DATE";
-
+        String normalizedSort = "VIEWS".equalsIgnoreCase(sort) ? "VIEWS" : "EVENT_DATE";
         return eventService.searchPublic(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 normalizedSort, from, size, request.getRemoteAddr(), request.getRequestURI()
