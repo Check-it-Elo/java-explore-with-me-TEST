@@ -60,6 +60,12 @@ public class EventServiceImpl implements EventService {
         }
 
         Event event = eventMapper.fromNew(dto, category, initiator, location);
+        
+        if (event.getPaid() == null) event.setPaid(false);
+        if (event.getParticipantLimit() == null) event.setParticipantLimit(0);
+        if (event.getRequestModeration() == null) event.setRequestModeration(true);
+        // <<<
+
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
         event = eventRepository.save(event);
