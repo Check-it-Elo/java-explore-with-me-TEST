@@ -9,7 +9,7 @@ import ru.practicum.ewm.main.dto.NewCategoryDto;
 import ru.practicum.ewm.main.service.CategoryService;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+//import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/admin/categories")
