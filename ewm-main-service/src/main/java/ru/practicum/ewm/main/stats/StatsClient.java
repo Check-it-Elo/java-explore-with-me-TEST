@@ -52,7 +52,6 @@ public class StatsClient {
 
         try {
             if (statsBaseUrl == null || statsBaseUrl.isBlank()) return zeros;
-            
             UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(statsBaseUrl)
                     .path("/stats")
                     .queryParam("start", start.format(FMT))
