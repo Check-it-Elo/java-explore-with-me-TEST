@@ -21,11 +21,13 @@ import ru.practicum.ewm.main.util.PageUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -233,7 +235,12 @@ public class EventServiceImpl implements EventService {
         }
 
         // фиксируем просмотр самого запроса
-        statsClient.hit(uri, clientIp, LocalDateTime.now());
+//        statsClient.hit(uri, clientIp, LocalDateTime.now());
+        try {
+            statsClient.hit(uri, clientIp, LocalDateTime.now());
+        } catch (Exception ex) {
+            log.warn("Stats hit failed: {}", ex.toString());
+        }
 
         // сортировка
         Sort s;
@@ -274,7 +281,14 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Event with id=" + eventId + " not found");
         }
-        statsClient.hit(uri, clientIp, LocalDateTime.now());
+//        statsClient.hit(uri, clientIp, LocalDateTime.now());
+        try {
+            statsClient.hit(uri, clientIp, LocalDateTime.now());
+        } catch (Exception ex) {
+            log.warn("Stats hit failed: {}", ex.toString());
+        }
+
+
         return enrichFull(event);
     }
 
@@ -310,12 +324,26 @@ public class EventServiceImpl implements EventService {
         if (ids == null || ids.isEmpty()) return Collections.emptyMap();
         List<String> uris = ids.stream().map(id -> "/events/" + id).collect(Collectors.toList());
         // Берём широкий интервал: от 2000-01-01 до сейчас
-        Map<String, Long> byUri = statsClient.views(
-                uris,
-                LocalDateTime.of(2000,1,1,0,0),
-                LocalDateTime.now().plusDays(1),
-                true
-        );
+//        Map<String, Long> byUri = statsClient.views(
+//                uris,
+//                LocalDateTime.of(2000,1,1,0,0),
+//                LocalDateTime.now().plusDays(1),
+//                true
+//        );
+
+        Map<String, Long> byUri;
+        try {
+            byUri = statsClient.views(
+                    uris,
+                    LocalDateTime.of(2000,1,1,0,0),
+                    LocalDateTime.now().plusDays(1),
+                    true
+            );
+        } catch (Exception ex) {
+            log.warn("Stats views failed: {}", ex.toString());
+            byUri = Collections.emptyMap();
+        }
+
         Map<Long, Long> res = new HashMap<>();
         for (Long id : ids) {
             res.put(id, byUri.getOrDefault("/events/" + id, 0L));
