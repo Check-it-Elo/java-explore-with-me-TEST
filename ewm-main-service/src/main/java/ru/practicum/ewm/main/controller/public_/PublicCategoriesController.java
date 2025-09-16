@@ -24,8 +24,7 @@ public class PublicCategoriesController {
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getById(@PathVariable
-@Min(1) long catId) {
+    public CategoryDto getById(@PathVariable @Min(1) long catId) {
         return categoryService.getById(catId);
     }
 }

@@ -20,7 +20,13 @@ public class StatsClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${stats.url:}")
+//    @Value("${stats.url:}")
+//    private String statsBaseUrl;
+//
+//    @Value("${app.name:ewm-main-service}")
+//    private String appName;
+
+    @Value("${stats-server.url:${stats.url:}}")
     private String statsBaseUrl;
 
     @Value("${app.name:ewm-main-service}")

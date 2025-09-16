@@ -34,26 +34,47 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                             @Param("rangeEnd") LocalDateTime rangeEnd,
                             Pageable pageable);
 
+//    // ---- PUBLIC ----
+//    @Query("""
+//               SELECT e FROM Event e
+//                WHERE e.state = ru.practicum.ewm.main.model.enums.EventState.PUBLISHED
+//                  AND (
+//                        :text IS NULL OR
+//                        LOWER(e.annotation)  LIKE CONCAT('%', LOWER(COALESCE(:text, '')), '%') OR
+//                        LOWER(e.description) LIKE CONCAT('%', LOWER(COALESCE(:text, '')), '%') OR
+//                        LOWER(e.title)       LIKE CONCAT('%', LOWER(COALESCE(:text, '')), '%')
+//                      )
+//                  AND ( :#{#categories == null || #categories.isEmpty()} = true OR e.category.id IN :categories )
+//                  AND ( :paid IS NULL OR e.paid = :paid )
+//                  AND e.eventDate >= COALESCE(:rangeStart, e.eventDate)
+//                  AND e.eventDate <= COALESCE(:rangeEnd,   e.eventDate)
+//            """)
+//    Page<Event> searchPublic(@Param("text") String text,
+//                             @Param("categories") List<Long> categories,
+//                             @Param("paid") Boolean paid,
+//                             @Param("rangeStart") LocalDateTime rangeStart,
+//                             @Param("rangeEnd") LocalDateTime rangeEnd,
+//                             Pageable pageable);
+
     // ---- PUBLIC ----
     @Query("""
-               SELECT e FROM Event e
-                WHERE e.state = ru.practicum.ewm.main.model.enums.EventState.PUBLISHED
-                  AND (
-                        :text IS NULL OR
-                        LOWER(e.annotation)  LIKE CONCAT('%', LOWER(COALESCE(:text, '')), '%') OR
-                        LOWER(e.description) LIKE CONCAT('%', LOWER(COALESCE(:text, '')), '%') OR
-                        LOWER(e.title)       LIKE CONCAT('%', LOWER(COALESCE(:text, '')), '%')
-                      )
-                  AND ( :#{#categories == null || #categories.isEmpty()} = true OR e.category.id IN :categories )
-                  AND ( :paid IS NULL OR e.paid = :paid )
-                  AND e.eventDate >= COALESCE(:rangeStart, e.eventDate)
-                  AND e.eventDate <= COALESCE(:rangeEnd,   e.eventDate)
-            """)
-    Page<Event> searchPublic(@Param("text") String text,
+       SELECT e FROM Event e
+        WHERE e.state = ru.practicum.ewm.main.model.enums.EventState.PUBLISHED
+          AND (
+                :search IS NULL OR
+                LOWER(e.annotation)  LIKE :search OR
+                LOWER(e.description) LIKE :search OR
+                LOWER(e.title)       LIKE :search
+              )
+          AND ( :#{#categories == null || #categories.isEmpty()} = true OR e.category.id IN :categories )
+          AND ( :paid IS NULL OR e.paid = :paid )
+          AND e.eventDate >= COALESCE(:rangeStart, e.eventDate)
+          AND e.eventDate <= COALESCE(:rangeEnd,   e.eventDate)
+       """)
+    Page<Event> searchPublic(@Param("search") String search,
                              @Param("categories") List<Long> categories,
                              @Param("paid") Boolean paid,
                              @Param("rangeStart") LocalDateTime rangeStart,
                              @Param("rangeEnd") LocalDateTime rangeEnd,
                              Pageable pageable);
-
 }
