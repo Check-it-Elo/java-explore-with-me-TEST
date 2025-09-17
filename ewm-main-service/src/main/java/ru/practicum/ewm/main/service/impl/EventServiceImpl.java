@@ -214,68 +214,6 @@ public class EventServiceImpl implements EventService {
 
     // ===== PUBLIC =====
 
-//    @Override
-//    public List<EventShortDto> searchPublic(String text, List<Long> categories, Boolean paid,
-//                                            String rangeStart, String rangeEnd, Boolean onlyAvailable,
-//                                            String sort, int from, int size, String clientIp, String uri) {
-//        LocalDateTime start = null;
-//        LocalDateTime end = null;
-//        try {
-//            start = (rangeStart == null || rangeStart.isBlank()) ? null : LocalDateTime.parse(rangeStart, FMT);
-//            end   = (rangeEnd   == null || rangeEnd.isBlank())   ? null : LocalDateTime.parse(rangeEnd, FMT);
-//        } catch (Exception e) {
-//            throw new BadRequestException("Incorrect date format. Expected pattern: yyyy-MM-dd HH:mm:ss");
-//        }
-//
-//        if (start != null && end != null && end.isBefore(start)) {
-//            throw new BadRequestException("rangeEnd must be after rangeStart");
-//        }
-//
-//        // Если обе даты не заданы — по умолчанию показываем только будущие события
-//        if (start == null && end == null) {
-//            start = LocalDateTime.now();
-//        }
-//
-//        // фиксируем просмотр самого запроса
-////        statsClient.hit(uri, clientIp, LocalDateTime.now());
-//        try {
-//            statsClient.hit(uri, clientIp, LocalDateTime.now());
-//        } catch (Exception ex) {
-//            log.warn("Stats hit failed: {}", ex.toString());
-//        }
-//
-//        // сортировка
-//        Sort s;
-//        if ("VIEWS".equalsIgnoreCase(sort)) {
-//            s = Sort.unsorted(); // сортируем потом в памяти
-//        } else {
-//            s = Sort.by("eventDate").ascending();
-//        }
-//
-//        Page<Event> page = eventRepository.searchPublic(
-//                emptyToNull(text),
-//                categories == null || categories.isEmpty() ? null : categories,
-//                paid,
-//                start,
-//                end,
-//                PageUtils.by(from, size, s)
-//        );
-//
-//        List<Event> events = page.getContent();
-//
-//        // фильтр onlyAvailable
-//        if (Boolean.TRUE.equals(onlyAvailable)) {
-//            events = events.stream().filter(this::hasAvailableSlots).collect(Collectors.toList());
-//        }
-//
-//        // enrich + сортировка по VIEWS
-//        List<EventShortDto> result = enrichShort(events);
-//        if ("VIEWS".equalsIgnoreCase(sort)) {
-//            result.sort(Comparator.comparingLong(EventShortDto::getViews).reversed());
-//        }
-//        return result;
-//    }
-
     @Override
     public List<EventShortDto> searchPublic(String text,
                                             List<Long> categories,
@@ -343,24 +281,6 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-//    @Override
-//    public EventFullDto getPublicEvent(long eventId, String clientIp, String uri) {
-//        Event event = eventRepository.findById(eventId)
-//                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found"));
-//        if (event.getState() != EventState.PUBLISHED) {
-//            throw new NotFoundException("Event with id=" + eventId + " not found");
-//        }
-////        statsClient.hit(uri, clientIp, LocalDateTime.now());
-//        try {
-//            statsClient.hit(uri, clientIp, LocalDateTime.now());
-//        } catch (Exception ex) {
-//            log.warn("Stats hit failed: {}", ex.toString());
-//        }
-//
-//
-//        return enrichFull(event);
-//    }
-
     @Override
     public EventFullDto getPublicEvent(long eventId, String clientIp, String uri) {
         Event event = eventRepository.findById(eventId)
@@ -419,13 +339,6 @@ public class EventServiceImpl implements EventService {
     private Map<Long, Long> fetchViewsByEventIds(Collection<Long> ids) {
         if (ids == null || ids.isEmpty()) return Collections.emptyMap();
         List<String> uris = ids.stream().map(id -> "/events/" + id).collect(Collectors.toList());
-        // Берём широкий интервал: от 2000-01-01 до сейчас
-//        Map<String, Long> byUri = statsClient.views(
-//                uris,
-//                LocalDateTime.of(2000,1,1,0,0),
-//                LocalDateTime.now().plusDays(1),
-//                true
-//        );
 
         Map<String, Long> byUri;
         try {
