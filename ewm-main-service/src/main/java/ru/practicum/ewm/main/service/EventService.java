@@ -27,4 +27,5 @@ public interface EventService {
                                      String sort, int from, int size, String clientIp, String uri);
 
     EventFullDto getPublicEvent(long eventId, String clientIp, String uri);
+
 }

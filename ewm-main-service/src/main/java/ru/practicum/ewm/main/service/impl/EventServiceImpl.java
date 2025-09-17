@@ -21,7 +21,9 @@ import ru.practicum.ewm.main.util.PageUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -151,7 +153,7 @@ public class EventServiceImpl implements EventService {
         LocalDateTime end = null;
         try {
             start = (rangeStart == null || rangeStart.isBlank()) ? null : LocalDateTime.parse(rangeStart, FMT);
-            end   = (rangeEnd   == null || rangeEnd.isBlank())   ? null : LocalDateTime.parse(rangeEnd, FMT);
+            end = (rangeEnd == null || rangeEnd.isBlank()) ? null : LocalDateTime.parse(rangeEnd, FMT);
         } catch (Exception e) {
             throw new BadRequestException("Incorrect date format. Expected pattern: yyyy-MM-dd HH:mm:ss");
         }
@@ -290,7 +292,7 @@ public class EventServiceImpl implements EventService {
         LocalDateTime end = null;
         try {
             start = (rangeStart == null || rangeStart.isBlank()) ? null : LocalDateTime.parse(rangeStart, FMT);
-            end   = (rangeEnd   == null || rangeEnd.isBlank())   ? null : LocalDateTime.parse(rangeEnd, FMT);
+            end = (rangeEnd == null || rangeEnd.isBlank()) ? null : LocalDateTime.parse(rangeEnd, FMT);
         } catch (Exception e) {
             throw new BadRequestException("Incorrect date format. Expected pattern: yyyy-MM-dd HH:mm:ss");
         }
@@ -341,6 +343,24 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
+//    @Override
+//    public EventFullDto getPublicEvent(long eventId, String clientIp, String uri) {
+//        Event event = eventRepository.findById(eventId)
+//                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " not found"));
+//        if (event.getState() != EventState.PUBLISHED) {
+//            throw new NotFoundException("Event with id=" + eventId + " not found");
+//        }
+////        statsClient.hit(uri, clientIp, LocalDateTime.now());
+//        try {
+//            statsClient.hit(uri, clientIp, LocalDateTime.now());
+//        } catch (Exception ex) {
+//            log.warn("Stats hit failed: {}", ex.toString());
+//        }
+//
+//
+//        return enrichFull(event);
+//    }
+
     @Override
     public EventFullDto getPublicEvent(long eventId, String clientIp, String uri) {
         Event event = eventRepository.findById(eventId)
@@ -348,15 +368,24 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Event with id=" + eventId + " not found");
         }
-//        statsClient.hit(uri, clientIp, LocalDateTime.now());
+
+        // 1) считаем просмотры ДО отправки хитa
+        long before = 0L;
+        try {
+            before = fetchViewsByEventIds(List.of(eventId)).getOrDefault(eventId, 0L);
+        } catch (Exception ex) {
+            log.warn("Stats views (before) failed: {}", ex.toString());
+        }
+
+        // 2) отправляем hit (не заваливаем основной поток)
         try {
             statsClient.hit(uri, clientIp, LocalDateTime.now());
         } catch (Exception ex) {
             log.warn("Stats hit failed: {}", ex.toString());
         }
 
-
-        return enrichFull(event);
+        // 3) возвращаем ответ с гарантированным +1
+        return enrichFull(event, before + 1);
     }
 
     // ===== Helpers =====
@@ -402,7 +431,7 @@ public class EventServiceImpl implements EventService {
         try {
             byUri = statsClient.views(
                     uris,
-                    LocalDateTime.of(2000,1,1,0,0),
+                    LocalDateTime.of(2000, 1, 1, 0, 0),
                     LocalDateTime.now().plusDays(1),
                     true
             );
@@ -416,6 +445,10 @@ public class EventServiceImpl implements EventService {
             res.put(id, byUri.getOrDefault("/events/" + id, 0L));
         }
         return res;
+    }
+
+    private EventFullDto enrichFull(Event e, long views) {
+        return eventMapper.toFullDto(e, countConfirmed(e), views);
     }
 
 }
